@@ -1,0 +1,30 @@
+import { S3 } from '../src';
+
+/*
+  make sure the bucket omni-scratch exists
+ */
+const bucket = 'omni-scratch';
+
+describe.skip('S3 integration tests', () => {
+  test('handles crud operations on s3 objects', async () => {
+    const s3 = new S3();
+    const key = 'images/test';
+    const expectedImage =
+      'data:image/png;base64,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\n';
+    await s3.putObject(bucket, key, expectedImage);
+
+    const actualImage = await s3.getObject(bucket, key);
+
+    expect(actualImage?.toString()).toEqual(expectedImage);
+    await s3.deleteObject(bucket, key);
+    const objectSummaries = await s3.listObjects(bucket);
+    expect(objectSummaries.map(summary => summary.key)).not.toContain(key);
+  });
+
+  test('lists buckets', async () => {
+    const s3 = new S3();
+    const bucketSummaries = await s3.listBuckets();
+    expect(bucketSummaries.length).toBeGreaterThanOrEqual(1);
+    expect(bucketSummaries.find(bucketSummary => bucketSummary.name === bucket)).not.toBeUndefined();
+  });
+});
