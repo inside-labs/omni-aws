@@ -1,4 +1,5 @@
 import { S3 as AwsS3 } from 'aws-sdk';
+import { Credentials } from './CognitoIdentity';
 
 export type StorageContent = Buffer | Uint8Array | Blob | string;
 
@@ -19,6 +20,10 @@ export class S3 {
 
   constructor(s3: AwsS3 = new AwsS3()) {
     this.s3 = s3;
+  }
+
+  static withCredentials(credentials: Credentials) {
+    return new S3(new AwsS3({ credentials }));
   }
 
   async putObject<T extends StorageContent>(bucket: string, key: string, value: T): Promise<void> {

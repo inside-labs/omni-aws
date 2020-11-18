@@ -1,4 +1,5 @@
 import { SecretsManager as AwsSecretsManager } from 'aws-sdk';
+import { Credentials } from './CognitoIdentity';
 
 export type SecretSummary = {
   name: string;
@@ -9,19 +10,15 @@ type CreateSecretResponse = {
   name: string;
 };
 
-export type DbSecret = {
-  username: string;
-  password: string;
-  dbname: string;
-  port: number;
-  host: string;
-};
-
 export class SecretsManager {
   private readonly secretsManager: AwsSecretsManager;
 
   constructor(secretsManager: AwsSecretsManager = new AwsSecretsManager()) {
     this.secretsManager = secretsManager;
+  }
+
+  static withCredentials(credentials: Credentials) {
+    return new SecretsManager(new AwsSecretsManager({ credentials }));
   }
 
   async getKeyValueSecret<T>(secretId: string): Promise<T | undefined> {
