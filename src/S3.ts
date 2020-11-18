@@ -22,7 +22,7 @@ export class S3 {
     this.s3 = s3;
   }
 
-  static withCredentials(credentials: Credentials) {
+  static withCredentials(credentials?: Credentials) {
     return new S3(new AwsS3({ credentials }));
   }
 

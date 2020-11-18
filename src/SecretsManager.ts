@@ -17,7 +17,7 @@ export class SecretsManager {
     this.secretsManager = secretsManager;
   }
 
-  static withCredentials(credentials: Credentials) {
+  static withCredentials(credentials?: Credentials) {
     return new SecretsManager(new AwsSecretsManager({ credentials }));
   }
 
