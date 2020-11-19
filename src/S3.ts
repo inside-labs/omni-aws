@@ -1,5 +1,5 @@
 import { S3 as AwsS3 } from 'aws-sdk';
-import { Credentials } from './CognitoIdentity';
+import { CognitoCredentials } from './CognitoIdentity';
 
 export type StorageContent = Buffer | Uint8Array | Blob | string;
 
@@ -22,7 +22,7 @@ export class S3 {
     this.s3 = s3;
   }
 
-  static withCredentials(credentials?: Credentials) {
+  static withCredentials(credentials?: CognitoCredentials) {
     return new S3(new AwsS3({ credentials }));
   }
 

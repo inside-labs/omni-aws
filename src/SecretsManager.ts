@@ -1,11 +1,11 @@
 import { SecretsManager as AwsSecretsManager } from 'aws-sdk';
-import { Credentials } from './CognitoIdentity';
+import { CognitoCredentials } from './CognitoIdentity';
 
 export type SecretSummary = {
   name: string;
 };
 
-type CreateSecretResponse = {
+export type CreateSecretResponse = {
   arn: string;
   name: string;
 };
@@ -17,7 +17,7 @@ export class SecretsManager {
     this.secretsManager = secretsManager;
   }
 
-  static withCredentials(credentials?: Credentials) {
+  static withCredentials(credentials?: CognitoCredentials) {
     return new SecretsManager(new AwsSecretsManager({ credentials }));
   }
 

@@ -5,7 +5,7 @@ export type IdentityPoolSummary = {
   name: string;
 };
 
-export type Credentials = {
+export type CognitoCredentials = {
   accessKeyId: string;
   secretAccessKey: string;
   sessionToken: string;
@@ -29,7 +29,7 @@ export class CognitoIdentity {
     return identity.IdentityId!!;
   }
 
-  async getCredentials(identityId: string, provider: string, identityToken: string): Promise<Credentials> {
+  async getCredentials(identityId: string, provider: string, identityToken: string): Promise<CognitoCredentials> {
     const identity = await this.cognitoIdentity
       .getCredentialsForIdentity({
         IdentityId: identityId,

@@ -1,7 +1,7 @@
 import { CloudWatch as AwsCloudWatch } from 'aws-sdk';
 import { MetricDataQueries, StandardUnit } from 'aws-sdk/clients/cloudwatch';
 
-type GetCloudWatchMetricInput = {
+export type GetCloudWatchMetricInput = {
   id: string;
   metricName: string;
   namespace: string;
@@ -9,12 +9,12 @@ type GetCloudWatchMetricInput = {
   statistic: 'SampleCount' | 'Average' | 'Sum' | 'Minimum' | 'Maximum';
 };
 
-type MetricDataPoint = {
+export type MetricDataPoint = {
   timestamp: Date;
   value: number;
 };
 
-type CloudWatchMetric = {
+export type CloudWatchMetric = {
   name: string;
   dataPoints: MetricDataPoint[];
 };
