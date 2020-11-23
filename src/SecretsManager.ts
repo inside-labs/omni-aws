@@ -32,7 +32,7 @@ export class SecretsManager {
   async createKeyValueSecret(
     name: string,
     description: string,
-    content: Record<string, string>
+    content: Record<string, any>
   ): Promise<CreateSecretResponse> {
     const secret = await this.secretsManager
       .createSecret({ Name: name, Description: description, SecretString: JSON.stringify(content) })
