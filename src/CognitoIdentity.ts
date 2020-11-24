@@ -100,7 +100,7 @@ export class CognitoIdentity {
     username: string,
     session: string,
     answer: string
-  ): Promise<CognitoAuthentication> {
+  ): Promise<CognitoAuthentication | CognitoCustomAuthChallenge> {
     const auth = await this.cognitoIdentityServiceProvider
       .respondToAuthChallenge({
         ChallengeName: 'CUSTOM_CHALLENGE',
@@ -109,7 +109,14 @@ export class CognitoIdentity {
         Session: session,
       })
       .promise();
-
+    if (auth.ChallengeName === 'CUSTOM_CHALLENGE') {
+      // user did not enter the correct code
+      return {
+        challengeName: auth.ChallengeName!!,
+        challengeParameters: auth.ChallengeParameters!!,
+        session: auth.Session!!,
+      };
+    }
     return {
       accessToken: auth.AuthenticationResult?.AccessToken!!,
       expiresIn: auth.AuthenticationResult?.ExpiresIn!!,
