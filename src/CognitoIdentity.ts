@@ -95,18 +95,17 @@ export class CognitoIdentity {
     };
   }
 
-  async sendCustomChallengeResponse(
+  async answerCustomChallenge(
     clientId: string,
     username: string,
-    challengeName: string,
     session: string,
-    response: string
+    answer: string
   ): Promise<CognitoAuthentication> {
     const auth = await this.cognitoIdentityServiceProvider
       .respondToAuthChallenge({
-        ChallengeName: challengeName,
+        ChallengeName: 'CUSTOM_CHALLENGE',
         ClientId: clientId,
-        ChallengeResponses: { USERNAME: username, ANSWER: response },
+        ChallengeResponses: { USERNAME: username, ANSWER: answer },
         Session: session,
       })
       .promise();

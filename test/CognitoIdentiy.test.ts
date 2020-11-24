@@ -38,12 +38,11 @@ describe.skip('CognitoIdentity integration tests', () => {
     expect(response.session).toBeDefined();
   });
 
-  test('send custom response', async () => {
+  test('answer custom challenge', async () => {
     const cognitoIdentity = new CognitoIdentity();
-    const credentials = await cognitoIdentity.sendCustomChallengeResponse(
+    const credentials = await cognitoIdentity.answerCustomChallenge(
       clientId,
       username,
-      'CUSTOM_CHALLENGE',
       'AYABeP3V6G-Ek4ahQelAlYVno3EAHQABAAdTZXJ2aWNlABBDb2duaXRvVXNlclBvb2xzAAEAB2F3cy1rbXMATmFybjphd3M6a21zOmV1LWNlbnRyYWwtMTo1OTA0OTA4MDk4NTg6a2V5LzRkMmU1YTdmLTFjZDctNDljOS04ZmFjLTJkOWRjYjVjZWY5ZgC4AQIBAHg-pjuNKvPKxtnKU3PADgyxqGsH7MeCPUPkKqeoBvImXgGO0Zg_LhBtcF4zdZBu3r2oAAAAfjB8BgkqhkiG9w0BBwagbzBtAgEAMGgGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMHWIVsVTUtTzFklMNAgEQgDuCH_YudX66Mi5Ufh6XmPj3zkSU_w-RQ8q_teELkDArYUFjNhFPdhhwJ2viUUYGcSsFJUQ2LHGj2DhaNgIAAAAADAAAEAAAAAAAAAAAAAAAAAC91_mYVvvQZCHueSTirFrU_____wAAAAEAAAAAAAAAAAAAAAEAAAEnBhW-BvB2lIyAr1nu3RizyZdsEHmZ3Sb9vamiEPew-neWnvu-4seJ0sdzCyWEHymTA5oTMab6nLTcDIVvXemz0DwNbmuXN3KEtO1csc4HQw7fhXJQHmVTBxZCZk2ukQqtrKOqdXo4KMrx9-4E7bf6ibR7MJ8Kh4us2iOwfDVYGFJzJAr-oUecnZ7UspR7v0EIl5W_2jGPuSoginhW7ne1h7xwrrcme-JM9lSJzZhTvVmH7D6U4dmQTdAa6UmrumhJJlOyM_Yoc-jWOKAo6UYOslYGuEmOd9mCgNuqm373Ri4iUqT7kDrQGH9MzShKvCBh0AtHe9EbtE9XJUUuxzKI8KM4MBTX4R_frnoIkLbDUoPL9ZBMvZZSZUC0xf6ql641nhqnLTOtmZW0cTdmAyCEInN6_JGZdM8',
       '445407'
     );
