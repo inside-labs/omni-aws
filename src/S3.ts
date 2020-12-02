@@ -15,6 +15,12 @@ export type S3ObjectSummary = {
   owner?: string;
 };
 
+export type GetObjectOutput = {
+  body: Buffer;
+  contentType?: string;
+  contentEncoding?: string;
+};
+
 export class S3 {
   private readonly s3: AwsS3;
 
@@ -26,11 +32,19 @@ export class S3 {
     return new S3(new AwsS3({ credentials }));
   }
 
-  async putObject<T extends StorageContent>(bucket: string, key: string, value: T): Promise<void> {
-    await this.s3.putObject({ Bucket: bucket, Key: key, Body: value }).promise();
+  async putObject<T extends StorageContent>(
+    bucket: string,
+    key: string,
+    value: T,
+    contentType?: string,
+    contentEncoding?: string
+  ): Promise<void> {
+    await this.s3
+      .putObject({ Bucket: bucket, Key: key, Body: value, ContentType: contentType, ContentEncoding: contentEncoding })
+      .promise();
   }
 
-  async getObject(bucket: string, key: string): Promise<Buffer | undefined> {
+  async getObject(bucket: string, key: string): Promise<GetObjectOutput | undefined> {
     const content = await this.s3.getObject({ Bucket: bucket, Key: key }).promise();
     if (!content.Body || content.DeleteMarker) {
       return undefined;
@@ -38,7 +52,11 @@ export class S3 {
     /*
       in NodeJS, a Buffer is returned, see https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#getObject-property
      */
-    return content.Body as Buffer;
+    return {
+      body: content.Body as Buffer,
+      contentEncoding: content.ContentEncoding,
+      contentType: content.ContentType,
+    };
   }
 
   async deleteObject(bucket: string, key: string): Promise<void> {
