@@ -177,8 +177,8 @@ export class CognitoIdentity {
     );
   }
 
-  async listUserPools(): Promise<UserPoolSummary[]> {
-    const userPools = await this.cognitoIdentityServiceProvider.listUserPools().promise();
+  async listUserPools(maxResults: number = 60): Promise<UserPoolSummary[]> {
+    const userPools = await this.cognitoIdentityServiceProvider.listUserPools({ MaxResults: maxResults }).promise();
     return (
       userPools.UserPools?.map(pool => ({
         id: pool.Id!!,
@@ -188,9 +188,9 @@ export class CognitoIdentity {
     );
   }
 
-  async listUserPoolClients(userPoolId: string): Promise<UserPoolClientSummary[]> {
+  async listUserPoolClients(userPoolId: string, maxResults: number = 60): Promise<UserPoolClientSummary[]> {
     const userPoolClients = await this.cognitoIdentityServiceProvider
-      .listUserPoolClients({ UserPoolId: userPoolId })
+      .listUserPoolClients({ UserPoolId: userPoolId, MaxResults: maxResults })
       .promise();
     return (
       userPoolClients.UserPoolClients?.map(client => ({
