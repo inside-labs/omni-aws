@@ -10,6 +10,11 @@ export type CreateSecretResponse = {
   name: string;
 };
 
+export type UpdateSecretResponse = {
+  arn: string;
+  name: string;
+};
+
 export class SecretsManager {
   private readonly secretsManager: AwsSecretsManager;
 
@@ -44,6 +49,19 @@ export class SecretsManager {
     };
   }
 
+  async updateKeyValueSecret(name: string, content: Record<string, any>): Promise<UpdateSecretResponse> {
+    const secret = await this.secretsManager
+      .updateSecret({
+        SecretId: name,
+        SecretString: JSON.stringify(content),
+      })
+      .promise();
+    return {
+      arn: secret.ARN!!,
+      name: secret.Name!!,
+    };
+  }
+
   async deleteSecret(secretName: string): Promise<void> {
     await this.secretsManager.deleteSecret({ SecretId: secretName });
   }
@@ -56,6 +74,19 @@ export class SecretsManager {
   async createPlainTextSecret(name: string, description: string, content: string): Promise<CreateSecretResponse> {
     const secret = await this.secretsManager
       .createSecret({ Name: name, Description: description, SecretString: content })
+      .promise();
+    return {
+      arn: secret.ARN!!,
+      name: secret.Name!!,
+    };
+  }
+
+  async updatePlainTextSecret(name: string, content: string): Promise<UpdateSecretResponse> {
+    const secret = await this.secretsManager
+      .updateSecret({
+        SecretId: name,
+        SecretString: content,
+      })
       .promise();
     return {
       arn: secret.ARN!!,
