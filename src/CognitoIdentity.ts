@@ -5,6 +5,17 @@ export type IdentityPoolSummary = {
   name: string;
 };
 
+export type UserPoolSummary = {
+  id: string;
+  name: string;
+  status: string;
+};
+
+export type UserPoolClientSummary = {
+  id: string;
+  name: string;
+};
+
 export type CognitoCredentials = {
   accessKeyId: string;
   secretAccessKey: string;
@@ -162,6 +173,29 @@ export class CognitoIdentity {
       identityPools.IdentityPools?.map(pool => ({
         id: pool.IdentityPoolId!!,
         name: pool.IdentityPoolName!!,
+      })) ?? []
+    );
+  }
+
+  async listUserPools(): Promise<UserPoolSummary[]> {
+    const userPools = await this.cognitoIdentityServiceProvider.listUserPools().promise();
+    return (
+      userPools.UserPools?.map(pool => ({
+        id: pool.Id!!,
+        name: pool.Name!!,
+        status: pool.Status!!,
+      })) ?? []
+    );
+  }
+
+  async listUserPoolClients(userPoolId: string): Promise<UserPoolClientSummary[]> {
+    const userPoolClients = await this.cognitoIdentityServiceProvider
+      .listUserPoolClients({ UserPoolId: userPoolId })
+      .promise();
+    return (
+      userPoolClients.UserPoolClients?.map(client => ({
+        id: client.ClientId!!,
+        name: client.ClientName!!,
       })) ?? []
     );
   }
