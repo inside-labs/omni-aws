@@ -137,6 +137,25 @@ export class CognitoIdentity {
     };
   }
 
+  async refreshToken(clientId: string, refreshToken: string): Promise<CognitoAuthentication> {
+    const auth = await this.cognitoIdentityServiceProvider
+      .initiateAuth({
+        ClientId: clientId,
+        AuthFlow: 'REFRESH_TOKEN_AUTH',
+        AuthParameters: {
+          REFRESH_TOKEN: refreshToken,
+        },
+      })
+      .promise();
+    return {
+      accessToken: auth.AuthenticationResult?.AccessToken!!,
+      expiresIn: auth.AuthenticationResult?.ExpiresIn!!,
+      tokenType: auth.AuthenticationResult?.TokenType!!,
+      idToken: auth.AuthenticationResult?.IdToken!!,
+      refreshToken: refreshToken,
+    };
+  }
+
   async getIdentityId(identityPoolId: string, provider: string, identityToken: string): Promise<string> {
     const identity = await this.cognitoIdentity
       .getId({

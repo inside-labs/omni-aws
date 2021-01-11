@@ -53,4 +53,16 @@ describe.skip('CognitoIdentity integration tests', () => {
     expect(credentials.tokenType).toBeDefined();
     expect(credentials.expiresIn).toBeDefined();
   });
+
+  test('refreshing token', async () => {
+    const cognitoIdentity = new CognitoIdentity();
+    const passwordCredentials = await cognitoIdentity.passwordLogin(clientId, username, password);
+    const refreshedCredentials = await cognitoIdentity.refreshToken(clientId, passwordCredentials.refreshToken);
+    console.log(refreshedCredentials);
+    expect(refreshedCredentials.idToken).toBeDefined();
+    expect(refreshedCredentials.accessToken).toBeDefined();
+    expect(refreshedCredentials.refreshToken).toBeDefined();
+    expect(refreshedCredentials.tokenType).toBeDefined();
+    expect(refreshedCredentials.expiresIn).toBeDefined();
+  });
 });
