@@ -1,4 +1,5 @@
 import { CognitoIdentity as AwsCognitoIdentity, CognitoIdentityServiceProvider } from 'aws-sdk';
+import { DeliveryMediumType, UserStatusType } from 'aws-sdk/clients/cognitoidentityserviceprovider';
 
 export type IdentityPoolSummary = {
   id: string;
@@ -43,6 +44,18 @@ export type CognitoCustomAuthChallenge = {
 export type CognitoSignUp = {
   userId: string;
   confirmed: boolean;
+};
+
+type CognitoUser = {
+  username: string;
+  mfaOptions?: { deliveryMedium?: DeliveryMediumType; attributeName?: string }[];
+  preferredMfaSetting?: string;
+  enabled?: boolean;
+  userAttributes?: Record<string, string>;
+  createdAt?: Date;
+  modifiedAt?: Date;
+  status?: UserStatusType;
+  userMFASettings?: string[];
 };
 
 export class CognitoIdentity {
@@ -154,6 +167,51 @@ export class CognitoIdentity {
       idToken: auth.AuthenticationResult?.IdToken!!,
       refreshToken: refreshToken,
     };
+  }
+
+  async getUser(userPoolId: string, username: string): Promise<CognitoUser> {
+    const user = await this.cognitoIdentityServiceProvider
+      .adminGetUser({ UserPoolId: userPoolId, Username: username })
+      .promise();
+    return {
+      username: user.Username,
+      status: user.UserStatus,
+      createdAt: user.UserCreateDate,
+      modifiedAt: user.UserLastModifiedDate,
+      enabled: user.Enabled,
+      mfaOptions: user.MFAOptions?.map(option => ({
+        attributeName: option.AttributeName,
+        deliveryMedium: option.DeliveryMedium,
+      })),
+      preferredMfaSetting: user.PreferredMfaSetting,
+      userAttributes: user.UserAttributes?.reduce((prev, current) => {
+        if (current.Name && current.Value) {
+          prev[current.Name] = current.Value;
+        }
+        return prev;
+      }, {} as Record<string, string>),
+      userMFASettings: user.UserMFASettingList,
+    };
+  }
+
+  async updateUserAttributes(userPoolId: string, username: string, userAttributes: Record<string, string>) {
+    const attributes = Object.keys(userAttributes).map(name => ({ Name: name, Value: userAttributes[name] }));
+    await this.cognitoIdentityServiceProvider
+      .adminUpdateUserAttributes({ UserPoolId: userPoolId, Username: username, UserAttributes: attributes })
+      .promise();
+  }
+
+  async updateEmail(userPoolId: string, username: string, email: string) {
+    await this.cognitoIdentityServiceProvider
+      .adminUpdateUserAttributes({
+        UserPoolId: userPoolId,
+        Username: username,
+        UserAttributes: [
+          { Name: 'email', Value: email },
+          { Name: 'email_verified', Value: 'true' },
+        ],
+      })
+      .promise();
   }
 
   async getIdentityId(identityPoolId: string, provider: string, identityToken: string): Promise<string> {

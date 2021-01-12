@@ -1,10 +1,11 @@
 import { CognitoAuthentication, CognitoIdentity } from '../src';
 
 const clientId: string = process.env.COGNITO_CLIENT_ID!!;
+const userPoolId: string = process.env.COGNITO_USER_POOL_ID!!;
 const username: string = process.env.COGNITO_USERNAME!!;
 const password: string = process.env.COGNITO_USER_PASSWORD!!;
 
-describe.skip('CognitoIdentity integration tests', () => {
+describe('CognitoIdentity integration tests', () => {
   test('returns a list of all identity pools', async () => {
     const cognitoIdentity = new CognitoIdentity();
     const poolSummaries = await cognitoIdentity.listIdentityPools();
@@ -64,5 +65,14 @@ describe.skip('CognitoIdentity integration tests', () => {
     expect(refreshedCredentials.refreshToken).toBeDefined();
     expect(refreshedCredentials.tokenType).toBeDefined();
     expect(refreshedCredentials.expiresIn).toBeDefined();
+  });
+
+  test.only('updates user attributes', async () => {
+    const cognitoIdentity = new CognitoIdentity();
+    const email = 'curdin+2@insidelabs.tech';
+    await cognitoIdentity.updateEmail(userPoolId, 'curdin+3@insidelabs.tech', email);
+    const cognitoUser = await cognitoIdentity.getUser(userPoolId, email);
+    console.log(cognitoUser);
+    expect(cognitoUser?.userAttributes?.email).toEqual(email);
   });
 });
