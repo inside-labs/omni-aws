@@ -5,7 +5,7 @@ const userPoolId: string = process.env.COGNITO_USER_POOL_ID!!;
 const username: string = process.env.COGNITO_USERNAME!!;
 const password: string = process.env.COGNITO_USER_PASSWORD!!;
 
-describe('CognitoIdentity integration tests', () => {
+describe.skip('CognitoIdentity integration tests', () => {
   test('returns a list of all identity pools', async () => {
     const cognitoIdentity = new CognitoIdentity();
     const poolSummaries = await cognitoIdentity.listIdentityPools();
@@ -67,7 +67,7 @@ describe('CognitoIdentity integration tests', () => {
     expect(refreshedCredentials.expiresIn).toBeDefined();
   });
 
-  test.only('updates user attributes', async () => {
+  test('updates user attributes', async () => {
     const cognitoIdentity = new CognitoIdentity();
     const email = 'curdin+2@insidelabs.tech';
     await cognitoIdentity.updateEmail(userPoolId, 'curdin+3@insidelabs.tech', email);
