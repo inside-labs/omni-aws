@@ -104,6 +104,12 @@ export class CognitoIdentity {
     };
   }
 
+  async setPassword(userPoolId: string, username: string, password: string, permanent: boolean) {
+    await this.cognitoIdentityServiceProvider
+      .adminSetUserPassword({ UserPoolId: userPoolId, Username: username, Password: password, Permanent: permanent })
+      .promise();
+  }
+
   async initiateCustomAuth(clientId: string, username: string): Promise<CognitoCustomAuthChallenge> {
     const response = await this.cognitoIdentityServiceProvider
       .initiateAuth({

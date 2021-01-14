@@ -75,4 +75,9 @@ describe.skip('CognitoIdentity integration tests', () => {
     console.log(cognitoUser);
     expect(cognitoUser?.userAttributes?.email).toEqual(email);
   });
+
+  test('set password', async () => {
+    const cognitoIdentity = new CognitoIdentity();
+    await cognitoIdentity.setPassword(userPoolId, username, '', true);
+  });
 });
