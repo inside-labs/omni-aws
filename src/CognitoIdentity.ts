@@ -175,6 +175,33 @@ export class CognitoIdentity {
     };
   }
 
+  async findUserByEmail(userPoolId: string, email: string): Promise<CognitoUser[] | undefined> {
+    const result = await this.cognitoIdentityServiceProvider
+      .listUsers({
+        UserPoolId: userPoolId,
+        Filter: `email=\"${email}\"`,
+      })
+      .promise();
+
+    return result.Users?.map(user => ({
+      username: user.Username!!,
+      userAttributes: user.Attributes?.reduce((prev, current) => {
+        if (current.Name && current.Value) {
+          prev[current.Name] = current.Value;
+        }
+        return prev;
+      }, {} as Record<string, string>),
+      status: user.UserStatus,
+      createdAt: user.UserCreateDate,
+      modifiedAt: user.UserLastModifiedDate,
+      enabled: user.Enabled,
+      mfaOptions: user.MFAOptions?.map(option => ({
+        attributeName: option.AttributeName,
+        deliveryMedium: option.DeliveryMedium,
+      })),
+    }));
+  }
+
   async getUser(userPoolId: string, username: string): Promise<CognitoUser> {
     const user = await this.cognitoIdentityServiceProvider
       .adminGetUser({ UserPoolId: userPoolId, Username: username })
