@@ -1,4 +1,4 @@
-import { SecretsManager as AwsSecretsManager } from 'aws-sdk';
+import { SecretsManager as AwsSecretsManager } from '@aws-sdk/client-secrets-manager';
 import { CognitoCredentials } from './CognitoIdentity';
 
 export type SecretSummary = {
@@ -18,7 +18,7 @@ export type UpdateSecretResponse = {
 export class SecretsManager {
   private readonly secretsManager: AwsSecretsManager;
 
-  constructor(secretsManager: AwsSecretsManager = new AwsSecretsManager()) {
+  constructor(secretsManager: AwsSecretsManager = new AwsSecretsManager({})) {
     this.secretsManager = secretsManager;
   }
 
@@ -27,7 +27,7 @@ export class SecretsManager {
   }
 
   async getKeyValueSecret<T>(secretId: string): Promise<T | undefined> {
-    const secret = await this.secretsManager.getSecretValue({ SecretId: secretId }).promise();
+    const secret = await this.secretsManager.getSecretValue({ SecretId: secretId });
     if (!secret.SecretString) {
       return;
     }
@@ -39,9 +39,11 @@ export class SecretsManager {
     description: string,
     content: Record<string, any>
   ): Promise<CreateSecretResponse> {
-    const secret = await this.secretsManager
-      .createSecret({ Name: name, Description: description, SecretString: JSON.stringify(content) })
-      .promise();
+    const secret = await this.secretsManager.createSecret({
+      Name: name,
+      Description: description,
+      SecretString: JSON.stringify(content),
+    });
 
     return {
       arn: secret.ARN!!,
@@ -50,12 +52,10 @@ export class SecretsManager {
   }
 
   async updateKeyValueSecret(name: string, content: Record<string, any>): Promise<UpdateSecretResponse> {
-    const secret = await this.secretsManager
-      .updateSecret({
-        SecretId: name,
-        SecretString: JSON.stringify(content),
-      })
-      .promise();
+    const secret = await this.secretsManager.updateSecret({
+      SecretId: name,
+      SecretString: JSON.stringify(content),
+    });
     return {
       arn: secret.ARN!!,
       name: secret.Name!!,
@@ -67,14 +67,16 @@ export class SecretsManager {
   }
 
   async getPlainTextSecret(secretId: string): Promise<string | undefined> {
-    const secret = await this.secretsManager.getSecretValue({ SecretId: secretId }).promise();
+    const secret = await this.secretsManager.getSecretValue({ SecretId: secretId });
     return secret.SecretString;
   }
 
   async createPlainTextSecret(name: string, description: string, content: string): Promise<CreateSecretResponse> {
-    const secret = await this.secretsManager
-      .createSecret({ Name: name, Description: description, SecretString: content })
-      .promise();
+    const secret = await this.secretsManager.createSecret({
+      Name: name,
+      Description: description,
+      SecretString: content,
+    });
     return {
       arn: secret.ARN!!,
       name: secret.Name!!,
@@ -82,12 +84,10 @@ export class SecretsManager {
   }
 
   async updatePlainTextSecret(name: string, content: string): Promise<UpdateSecretResponse> {
-    const secret = await this.secretsManager
-      .updateSecret({
-        SecretId: name,
-        SecretString: content,
-      })
-      .promise();
+    const secret = await this.secretsManager.updateSecret({
+      SecretId: name,
+      SecretString: content,
+    });
     return {
       arn: secret.ARN!!,
       name: secret.Name!!,
@@ -95,7 +95,7 @@ export class SecretsManager {
   }
 
   async listSecrets(): Promise<SecretSummary[]> {
-    const secrets = await this.secretsManager.listSecrets().promise();
+    const secrets = await this.secretsManager.listSecrets({});
     return (
       secrets.SecretList?.map(secret => ({
         name: secret.Name!!,

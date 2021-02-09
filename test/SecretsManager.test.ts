@@ -1,6 +1,6 @@
 import { SecretsManager } from '../src';
 
-describe.skip('SecretsManager integration tests', () => {
+describe('SecretsManager integration tests', () => {
   test('handles crud operations of key value secrets', async () => {
     const secretsManager = new SecretsManager();
     const name = `test-secret-${Math.random()}`;

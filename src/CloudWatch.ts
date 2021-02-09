@@ -1,5 +1,4 @@
-import { CloudWatch as AwsCloudWatch } from 'aws-sdk';
-import { MetricDataQueries, StandardUnit } from 'aws-sdk/clients/cloudwatch';
+import { CloudWatch as AwsCloudWatch, MetricDataQuery, StandardUnit } from '@aws-sdk/client-cloudwatch';
 
 export type GetCloudWatchMetricInput = {
   id: string;
@@ -22,24 +21,22 @@ export type CloudWatchMetric = {
 export class CloudWatch {
   private readonly cloudWatch: AwsCloudWatch;
 
-  constructor(cloudWatch: AwsCloudWatch = new AwsCloudWatch()) {
+  constructor(cloudWatch: AwsCloudWatch = new AwsCloudWatch({})) {
     this.cloudWatch = cloudWatch;
   }
 
   async triggerMetric(namespace: string, name: string, value: number, unit: StandardUnit, resolution: 1 | 60) {
-    await this.cloudWatch
-      .putMetricData({
-        Namespace: namespace,
-        MetricData: [
-          {
-            MetricName: name,
-            Value: value,
-            Unit: unit,
-            StorageResolution: resolution,
-          },
-        ],
-      })
-      .promise();
+    await this.cloudWatch.putMetricData({
+      Namespace: namespace,
+      MetricData: [
+        {
+          MetricName: name,
+          Value: value,
+          Unit: unit,
+          StorageResolution: resolution,
+        },
+      ],
+    });
   }
 
   async batchTriggerMetric(
@@ -50,24 +47,22 @@ export class CloudWatch {
     resolution?: 1 | 60,
     timestamp?: Date
   ) {
-    await this.cloudWatch
-      .putMetricData({
-        Namespace: namespace,
-        MetricData: [
-          {
-            MetricName: name,
-            Values: values,
-            Unit: unit,
-            StorageResolution: resolution,
-            Timestamp: timestamp,
-          },
-        ],
-      })
-      .promise();
+    await this.cloudWatch.putMetricData({
+      Namespace: namespace,
+      MetricData: [
+        {
+          MetricName: name,
+          Values: values,
+          Unit: unit,
+          StorageResolution: resolution,
+          Timestamp: timestamp,
+        },
+      ],
+    });
   }
 
   async getMetrics(metrics: GetCloudWatchMetricInput[], startTime: Date, endTime: Date): Promise<CloudWatchMetric[]> {
-    const queries: MetricDataQueries = metrics.map(metric => ({
+    const queries: MetricDataQuery[] = metrics.map(metric => ({
       Id: metric.id,
       MetricStat: {
         Metric: {
@@ -79,14 +74,12 @@ export class CloudWatch {
       },
       ReturnData: true,
     }));
-    const metricsResponse = await this.cloudWatch
-      .getMetricData({
-        MetricDataQueries: queries,
-        StartTime: startTime,
+    const metricsResponse = await this.cloudWatch.getMetricData({
+      MetricDataQueries: queries,
+      StartTime: startTime,
 
-        EndTime: endTime,
-      })
-      .promise();
+      EndTime: endTime,
+    });
     return (
       metricsResponse.MetricDataResults?.map(result => {
         const dataPoints: MetricDataPoint[] = [];

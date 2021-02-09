@@ -78,7 +78,7 @@ describe.skip('CognitoIdentity integration tests', () => {
 
   test('returns users by email', async () => {
     const cognitoIdentity = new CognitoIdentity();
-    const cognitoUser = await cognitoIdentity.findUserByEmail(userPoolId, 'some@email.tech');
+    const cognitoUser = await cognitoIdentity.findUserByEmail(userPoolId, 'curdin@insidelabs.tech');
     console.log(cognitoUser);
   });
 

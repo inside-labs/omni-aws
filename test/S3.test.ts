@@ -15,7 +15,7 @@ describe.skip('S3 integration tests', () => {
 
     const actualImage = await s3.getObject(bucket, key);
 
-    expect(actualImage?.toString()).toEqual(expectedImage);
+    expect(actualImage?.body).toEqual(expectedImage);
     await s3.deleteObject(bucket, key);
     const objectSummaries = await s3.listObjects(bucket);
     expect(objectSummaries.map(summary => summary.key)).not.toContain(key);

@@ -1,4 +1,4 @@
-import { RDS as AwsRDS } from 'aws-sdk';
+import { RDS as AwsRDS } from '@aws-sdk/client-rds';
 
 export type RdsClusterSummary = {
   id: string;
@@ -30,12 +30,12 @@ export type RdsInstanceSummary = {
 export class RDS {
   private readonly rds: AwsRDS;
 
-  constructor(rds: AwsRDS = new AwsRDS()) {
+  constructor(rds: AwsRDS = new AwsRDS({})) {
     this.rds = rds;
   }
 
   async listInstances(): Promise<RdsInstanceSummary[]> {
-    const instances = await this.rds.describeDBInstances().promise();
+    const instances = await this.rds.describeDBInstances({});
     return (
       instances.DBInstances?.map(instance => ({
         endpoint: instance.Endpoint?.Address!!,
@@ -52,7 +52,7 @@ export class RDS {
   }
 
   async listClusters(): Promise<RdsClusterSummary[]> {
-    const dbs = await this.rds.describeDBClusters().promise();
+    const dbs = await this.rds.describeDBClusters({});
     return (
       dbs.DBClusters?.map(cluster => ({
         id: cluster.DBClusterIdentifier!!,

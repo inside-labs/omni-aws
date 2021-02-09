@@ -1,5 +1,6 @@
-import { S3 as AwsS3 } from 'aws-sdk';
+import { S3 as AwsS3 } from '@aws-sdk/client-s3';
 import { CognitoCredentials } from './CognitoIdentity';
+import { Readable } from 'stream';
 
 export type StorageContent = Buffer | Uint8Array | Blob | string;
 
@@ -16,7 +17,7 @@ export type S3ObjectSummary = {
 };
 
 export type GetObjectOutput = {
-  body: Buffer;
+  body: string;
   contentType?: string;
   contentEncoding?: string;
 };
@@ -24,7 +25,7 @@ export type GetObjectOutput = {
 export class S3 {
   private readonly s3: AwsS3;
 
-  constructor(s3: AwsS3 = new AwsS3()) {
+  constructor(s3: AwsS3 = new AwsS3({})) {
     this.s3 = s3;
   }
 
@@ -39,32 +40,41 @@ export class S3 {
     contentType?: string,
     contentEncoding?: string
   ): Promise<void> {
-    await this.s3
-      .putObject({ Bucket: bucket, Key: key, Body: value, ContentType: contentType, ContentEncoding: contentEncoding })
-      .promise();
+    await this.s3.putObject({
+      Bucket: bucket,
+      Key: key,
+      Body: value,
+      ContentType: contentType,
+      ContentEncoding: contentEncoding,
+    });
   }
 
   async getObject(bucket: string, key: string): Promise<GetObjectOutput | undefined> {
-    const content = await this.s3.getObject({ Bucket: bucket, Key: key }).promise();
-    if (!content.Body || content.DeleteMarker) {
+    const content = await this.s3.getObject({ Bucket: bucket, Key: key });
+    if (!content.Body || content.DeleteMarker || !(content.Body instanceof Readable)) {
       return undefined;
     }
     /*
-      in NodeJS, a Buffer is returned, see https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#getObject-property
+      in NodeJS, a Readable is returned,
      */
+
+    let result: string = '';
+    for await (const chunk of content.Body) {
+      result += chunk;
+    }
     return {
-      body: content.Body as Buffer,
+      body: result,
       contentEncoding: content.ContentEncoding,
       contentType: content.ContentType,
     };
   }
 
   async deleteObject(bucket: string, key: string): Promise<void> {
-    await this.s3.deleteObject({ Bucket: bucket, Key: key }).promise();
+    await this.s3.deleteObject({ Bucket: bucket, Key: key });
   }
 
   async listObjects(bucket: string): Promise<S3ObjectSummary[]> {
-    const objects = await this.s3.listObjects({ Bucket: bucket }).promise();
+    const objects = await this.s3.listObjects({ Bucket: bucket });
     return (
       objects.Contents?.map(content => ({
         key: content.Key!!,
@@ -76,7 +86,7 @@ export class S3 {
   }
 
   async listBuckets(): Promise<BucketSummary[]> {
-    const buckets = await this.s3.listBuckets().promise();
+    const buckets = await this.s3.listBuckets({});
     return (
       buckets.Buckets?.map(bucket => ({
         name: bucket.Name!!,
