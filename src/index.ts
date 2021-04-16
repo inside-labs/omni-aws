@@ -4,3 +4,4 @@ export * from './ElastiCache';
 export * from './S3';
 export * from './RDS';
 export * from './SecretsManager';
+export * from './SESClient';
