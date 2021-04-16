@@ -92,8 +92,8 @@ export class SESClient {
     };
   }
 
-  async sendTemplateMail(mail: SESTemplateMail) {
-    new SendTemplatedEmailCommand({
+  async sendTemplateMail(mail: SESTemplateMail): Promise<SESSendEmailResult> {
+    const sendTemplatedEmailCommand = new SendTemplatedEmailCommand({
       Destination: {
         ToAddresses: mail.destinationAddresses.to,
         CcAddresses: mail.destinationAddresses.cc,
@@ -105,5 +105,9 @@ export class SESClient {
       TemplateArn: mail.template.arn,
       TemplateData: mail.template.data,
     });
+    const result = await this.awsSesClient.send(sendTemplatedEmailCommand);
+    return {
+      messageId: result.MessageId!,
+    };
   }
 }
