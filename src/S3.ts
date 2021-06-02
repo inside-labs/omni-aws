@@ -1,6 +1,7 @@
 import { S3 as AwsS3 } from '@aws-sdk/client-s3';
 import { CognitoCredentials } from './CognitoIdentity';
 import { Readable } from 'stream';
+import { ObjectCannedACL } from '@aws-sdk/client-s3/models/models_0';
 
 export type StorageContent = Buffer | Uint8Array | Blob | string;
 
@@ -38,7 +39,8 @@ export class S3 {
     key: string,
     value: T,
     contentType?: string,
-    contentEncoding?: string
+    contentEncoding?: string,
+    acl?: ObjectCannedACL
   ): Promise<void> {
     await this.s3.putObject({
       Bucket: bucket,
@@ -46,6 +48,7 @@ export class S3 {
       Body: value,
       ContentType: contentType,
       ContentEncoding: contentEncoding,
+      ACL: acl,
     });
   }
 
